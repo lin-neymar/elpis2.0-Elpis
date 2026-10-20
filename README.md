@@ -183,12 +183,70 @@ const app = serverStart({});
 
 ### 前端构建
 
+业务仓 `build.js` **不要改**，继续调用框架 API：
+
 ```javascript
 const { frontendBuild } = require('@zwl_11/elpis');
 
-// 编译构建前端工程
+// local → Vite Dev Server :9002；production → vite.build 写 dist/prod
 frontendBuild(process.env._ENV);
 ```
+
+构建器在框架包 `app/vite/`，业务仓禁止 `import vite` / 手写 `vite.config.ts`。
+
+### npm link（本地联调框架）
+
+在 **elpis** 仓库：
+
+```bash
+npm link
+```
+
+在 **elpis-demo** 仓库（包名以 `package.json` 的 `name` 为准，当前为 `@zwl_11/elpis`）：
+
+```bash
+npm link @zwl_11/elpis
+```
+
+业务仓不要在本仓库写构建器。改框架后重新 link / 重启 `build:dev`，`.tpl` 才会按新逻辑生成。
+
+### Vite 双终端启动（开发）
+
+在 **elpis-demo** 开两个终端：
+
+```bash
+# 终端 1：Vite 出脚本 + HMR（9002）
+npm run build:dev
+
+# 终端 2：Koa 渲染 .tpl、提供 API（8080）
+npm run dev
+```
+
+打开 `http://localhost:8080/view/auth/login`。页面由 8080 渲染，脚本从 `http://127.0.0.1:9002` 加载。
+
+生产（无 9002）：
+
+```bash
+npm run build:prod   # 产物落到 app/public/dist/prod/
+npm run prod         # 仅 Koa :8080，静态目录读 /dist/prod/
+```
+
+### 与 webpack 1.0 差异
+
+| | webpack 1.0 | Vite 2.0 |
+|--|--|--|
+| 多入口 | 扫描框架 + 业务 `entry.*.js` 进 webpack `entry` | 同样扫两棵树，进 `rollupOptions.input` |
+| 页面模板 | HtmlWebpackPlugin 写 `app/public/dist/{entry}.tpl` | `elpis-tpl-plugin` 写同一路径，仍给 Koa SSR，不是官方 `index.html` |
+| 开发 | Express :9002 + webpack-dev-middleware | Vite Dev Server :9002；Koa 仍是 :8080（双进程不变） |
+| `frontendBuild(env)` | `local` / `production` 分岔 webpack | **签名不变**；`local` → `app/vite/dev.js`，`production` → `app/vite/prod.js` |
+| 业务 `import` | `$elpis*` / `$business*` alias | alias key 对齐，业务页路径零改 |
+
+### Part1 完成 checklist
+
+- [ ] M5：`curl -I http://127.0.0.1:9002/@vite/client` 200，浏览器有 HMR
+- [ ] M7：8080 dashboard 全链路 CRUD（schema 增删改查）行为不比 1.0 少
+- [ ] `app/webpack/` 已删除，`package.json` 无 webpack 构建依赖
+- [ ] demo `build.js` / `server.js` 调用签名未改
 
 ### 自定义页面扩展
 

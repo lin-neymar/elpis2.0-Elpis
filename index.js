@@ -20,8 +20,8 @@
 // 更换启动方式，引入elpis-core
 const ElpisCore = require('./elpis-core');
 // 引入前端工程化构建方法（包内相对路径，发布 npm 后仍可正确解析）
-const FEBuildDev = require('./app/webpack/dev');
-const FEBuildProd = require('./app/webpack/prod');
+const FEBuildDev = require('./app/vite/dev.js');
+const FEBuildProd = require('./app/vite/prod.js');
 
 module.exports = {
   /*
