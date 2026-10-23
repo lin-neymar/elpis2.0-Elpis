@@ -1,39 +1,8 @@
-// const Koa = require("koa");
-
-// // Koa实例
-// const app = new Koa();
-
-// // 启动服务
-// // 使用try catch，增强服务启动的健壮性
-// try {
-//   // 取环境变量中的端口，不存在则设置为8080
-//   const port = process.env.PORT || 8080;
-//   // 取环境变量中的IP，不存在则设置为0.0.0.0
-//   const host = process.env.IP || "0.0.0.0";
-
-//   app.listen(port, host);
-//   console.log(`Server running on port:${port}`);
-// } catch (e) {
-//   console.error(e);
-// }
-
-// 更换启动方式，引入elpis-core
-const ElpisCore = require('./elpis-core');
 // 引入前端工程化构建方法（包内相对路径，发布 npm 后仍可正确解析）
 const FEBuildDev = require('./app/vite/dev.js');
 const FEBuildProd = require('./app/vite/prod.js');
 
 module.exports = {
-  /*
-   * 服务端基础,让外部使用者能够使用到对应的base
-   */
-  Controller: {
-    Base: require('./app/controller/base'),
-  },
-  Service: {
-    Base: require('./app/service/base'),
-  },
-
   /*
    * 编译构建前端工程
    * @param env 环境变量 local/production
@@ -48,16 +17,10 @@ module.exports = {
 
   /*
    * 启动elpis
-   * @param {Object} options - 启动参数，项目配置，透传到elpis-core
+   * @param {Object} options - 启动参数，项目配置，透传到 Nest bootstrap
    */
   serverStart(options = {}) {
-    const app = ElpisCore.start(options);
-    return app;
+    const { bootstrap } = require('./dist/main');
+    return bootstrap(options);
   },
 };
-
-// 启动项目
-// ElpisCore.start({
-//   name: 'Elpis',
-//   homePage: '/view/dashboard',
-// });

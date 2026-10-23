@@ -1,43 +1,51 @@
-const assert = require('assert'); //assert — 断言,作用是判断「实际结果」是否等于「预期」
-const supertest = require('supertest'); //supertest — HTTP 接口测试
+const assert = require('assert');
+const fs = require('fs');
+const path = require('path');
+const supertest = require('supertest');
 const md5 = require('md5');
-const elpisCore = require('../../elpis-core');
 
-const signKey = 'hsdfs73jsds629hsds8vwwgwg8qi9';
+const signKey = 'klx05hb3n1c9ujp8uhxbs2ikkiowp212';
 const st = Date.now();
 
-// describe 把相关测试归为一组
-describe('测试 project 相关接口', function () {
+const demoDir = path.resolve(__dirname, '../../../elpis2.0-demo');
+const hasDemo = fs.existsSync(demoDir);
+
+(hasDemo ? describe : describe.skip)('测试 project 相关接口', function () {
   this.timeout(60000);
 
   let modelList;
   const projectList = [];
   let request;
+  const previousCwd = process.cwd();
 
-  // it 一个具体测试场景
-  it('启动服务', async () => {
-    const app = await elpisCore.start();
-    modelList = require('../../model/index')(app);
+  after(function () {
+    process.chdir(previousCwd);
+  });
+
+  it('启动 Nest 应用', async () => {
+    process.chdir(demoDir);
+    process.env._ENV = process.env._ENV || 'local';
+
+    const { createElpisApp } = require('../../dist/main');
+    const app = await createElpisApp({});
+    request = supertest(app.getHttpServer());
+
+    const loadModelList = require(path.resolve(__dirname, '../../model/index.js'));
+    modelList = loadModelList({});
     modelList.forEach((modelItem) => {
       const { project } = modelItem;
       for (const pKey in project) {
         projectList.push(project[pKey]);
       }
     });
-    request = supertest(app.listen());
   });
 
-  /*
-   * 测试获取modelList接口
-   */
   it('GET /api/project/model_list', async () => {
     let tmpRequest = request.get('/api/project/model_list');
     tmpRequest = tmpRequest.set('s_t', st);
     tmpRequest = tmpRequest.set('s_sign', md5(`${signKey}_${st}`));
     const res = await tmpRequest;
     assert(res.body.success === true);
-
-    console.log(JSON.stringify(res.body));
 
     const resData = res.body.data;
     assert(resData.length > 0);
@@ -55,9 +63,6 @@ describe('测试 project 相关接口', function () {
     }
   });
 
-  /*
-   * 测试获取projectList接口
-   */
   it('GET /api/project/list without proj_key', async () => {
     let tmpRequest = request.get('/api/project/list');
     tmpRequest = tmpRequest.set('s_t', st);
@@ -76,6 +81,7 @@ describe('测试 project 相关接口', function () {
       assert(item.homePage !== undefined);
     }
   });
+
   it('GET /api/project/list with proj_key', async () => {
     const projKey = projectList[Math.floor(Math.random() * projectList.length)].key;
     const { modelKey } = projectList.find((item) => item.key === projKey);
@@ -100,9 +106,6 @@ describe('测试 project 相关接口', function () {
     }
   });
 
-  /*
-   * 测试获取project配置接口
-   */
   it('GET /api/project without proj_key', async () => {
     let tmpRequest = request.get('/api/project');
     tmpRequest = tmpRequest.set('s_t', st);
@@ -112,8 +115,13 @@ describe('测试 project 相关接口', function () {
 
     const resBody = res.body;
     assert(resBody.code === 442);
-    assert(resBody.message.indexOf(`request validate fail: data should have required property 'proj_key'`) > -1);
+    assert(
+      resBody.message.indexOf(
+        "request validate fail: data should have required property 'proj_key'",
+      ) > -1,
+    );
   });
+
   it('GET /api/project fail', async () => {
     let tmpRequest = request.get('/api/project');
     tmpRequest = tmpRequest.set('s_t', st);
@@ -128,11 +136,11 @@ describe('测试 project 相关接口', function () {
     assert(resBody.code === 50000);
     assert(resBody.message === '获取项目配置异常');
   });
+
   it('GET /api/project with proj_key', async () => {
     for (let i = 0; i < projectList.length; ++i) {
       const projItem = projectList[i];
       const { key: projKey } = projItem;
-      console.log(`当前请求${projKey}`);
 
       let tmpRequest = request.get('/api/project');
       tmpRequest = tmpRequest.set('s_t', st);
@@ -152,11 +160,9 @@ describe('测试 project 相关接口', function () {
 
       const { menu } = resData;
       menu.forEach((menuItem) => {
-        // 定义一个方法，断言menu里面的数据（因为menu里面的数据是递归而来的）
         checkMenuItem(menuItem);
       });
 
-      // 校验 menu 菜单
       function checkMenuItem(menuItem) {
         assert(menuItem.key);
         assert(menuItem.name);
@@ -173,7 +179,6 @@ describe('测试 project 相关接口', function () {
         }
       }
 
-      // 检查 module 菜单配置
       function checkModule(menuItem) {
         const { moduleType } = menuItem;
         assert(moduleType);
@@ -209,3 +214,7 @@ describe('测试 project 相关接口', function () {
     }
   });
 });
+
+if (!hasDemo) {
+  console.warn('[test] 未找到同级 elpis2.0-demo，project 接口测试已 skip');
+}

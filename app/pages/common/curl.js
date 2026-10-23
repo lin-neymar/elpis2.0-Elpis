@@ -17,7 +17,8 @@ const curl = ({
   errorMessage = '网络异常',
 }) => {
   // 接口签名处理（让接口变动态）
-  const signKey = 'hsdfs73jsds629hsds8vwwgwg8qi9';
+  // 与 ApiSignGuard SIGN_KEY、test/controller/project.test.js 一致
+  const signKey = 'klx05hb3n1c9ujp8uhxbs2ikkiowp212';
   const st = Date.now();
 
   const dtoHeaders = {

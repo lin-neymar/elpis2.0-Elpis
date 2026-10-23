@@ -1,5 +1,35 @@
 # elpis
 
+## Part2 成果（Koa → 全 Nest）
+
+- HTTP 内核：`NestFactory` + `app/` 下 Module / Controller / Guard / Pipe / Filter；**已删除 `elpis-core/` 与 Koa 业务目录**。
+- 对外不变：`index.js` 仍提供 `serverStart(options)`、`frontendBuild(env)`；`serverStart` → `require('./dist/main').bootstrap`。
+- 业务扫描：`ElpisModule.register()` 加载 **业务仓** `process.cwd()/dist/modules/**/*.module.js`（框架只保留 `project` / `view` / `fallback`）。
+- Demo 业务在 **elpis2.0-demo** 的 `app/modules/{auth,user,product}`，由扫描挂入，不写死在框架 `AppModule`。
+
+### 顶层目录（框架仓）
+
+| 路径 | 职责 |
+|------|------|
+| `app/main.ts` / `app.module.ts` / `elpis.module.ts` | Nest 启动与模块装配 |
+| `app/common/` | 验签、校验 442、异常、静态兜底、`loadBusinessModules` |
+| `app/modules/project|view|fallback` | 框架 API / 视图 / GET `*` 兜底 |
+| `app/pages` + `app/vite` + `app/public` | 前端工程（Vite 9002 → 8080 静态） |
+| `config/` | 框架默认配置 |
+| `model/` | 框架侧 model 索引（demo 用自家 `model/`） |
+| `dist/` | Nest 编译产物（勿 tsx 直跑 TS） |
+
+### 本地双终端（elpis2.0-demo）
+
+| 终端 | 目录 | 命令 | 作用 |
+|------|------|------|------|
+| A | elpis2.0-demo | `npm run build:dev` | Vite dev，页面脚本走 9002 |
+| B | elpis2.0-demo | `npm run dev` | `build:modules` + tsc watch + nodemon 拉起 8080 Nest |
+
+Part3 规划：框架侧 **`app/ai/`**（本 Part 未实现 Agent / LLM）。
+
+---
+
 ## 一个企业级应用
 
 ### model配置

@@ -1,5 +1,8 @@
 /node_modules
+dist/
 package-lock.json
 config.local.js
 logs/
 app/public/dist
+outputs/
+*.tsbuildinfo
