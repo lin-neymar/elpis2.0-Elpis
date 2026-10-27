@@ -2,6 +2,10 @@
 const FEBuildDev = require('./app/vite/dev.js');
 const FEBuildProd = require('./app/vite/prod.js');
 
+function loadEvalAssertions() {
+  return require('./dist/ai/eval/assertions');
+}
+
 module.exports = {
   /*
    * 编译构建前端工程
@@ -22,5 +26,25 @@ module.exports = {
   serverStart(options = {}) {
     const { bootstrap } = require('./dist/main');
     return bootstrap(options);
+  },
+
+  stepsContain(...args) {
+    return loadEvalAssertions().stepsContain(...args);
+  },
+
+  outputNotEmpty(...args) {
+    return loadEvalAssertions().outputNotEmpty(...args);
+  },
+
+  guardrailBlocked(...args) {
+    return loadEvalAssertions().guardrailBlocked(...args);
+  },
+
+  outputContainsAny(...args) {
+    return loadEvalAssertions().outputContainsAny(...args);
+  },
+
+  runAssertions(...args) {
+    return loadEvalAssertions().runAssertions(...args);
   },
 };

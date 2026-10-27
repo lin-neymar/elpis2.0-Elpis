@@ -1,5 +1,5 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { get as lodashGet } from 'lodash';
+import { get as lodashGet, merge } from 'lodash';
 import { createRequire } from 'module';
 import { join } from 'path';
 import { BOOTSTRAP_OPTIONS, BootstrapOptions } from './bootstrap-options';
@@ -44,34 +44,43 @@ export class ConfigService {
 
   private mergeConfig(): Record<string, unknown> {
     const elpisConfigPath = join(__dirname, '..', '..', 'config');
-    let defaultConfig: Record<string, unknown> = {};
+    let merged: Record<string, unknown> = {};
 
     try {
-      defaultConfig = {
-        ...nodeRequire(join(elpisConfigPath, 'config.default.js')),
-      };
+      merged = merge(
+        merged,
+        nodeRequire(join(elpisConfigPath, 'config.default.js')),
+      );
     } catch {
       console.error('[exception]default.config file exception');
     }
 
     const businessConfigPath = join(process.cwd(), 'config');
     try {
-      defaultConfig = {
-        ...defaultConfig,
-        ...nodeRequire(join(businessConfigPath, 'config.default.js')),
-      };
+      merged = merge(
+        merged,
+        nodeRequire(join(businessConfigPath, 'config.default.js')),
+      );
     } catch {
       console.error('[exception]default.config file exception');
     }
 
-    let envConfig: Record<string, unknown> = {};
     try {
       if (this.isLocal()) {
-        envConfig = nodeRequire(join(businessConfigPath, 'config.local.js'));
+        merged = merge(
+          merged,
+          nodeRequire(join(businessConfigPath, 'config.local.js')),
+        );
       } else if (this.isBeta()) {
-        envConfig = nodeRequire(join(businessConfigPath, 'config.beta.js'));
+        merged = merge(
+          merged,
+          nodeRequire(join(businessConfigPath, 'config.beta.js')),
+        );
       } else if (this.isProduction()) {
-        envConfig = nodeRequire(join(businessConfigPath, 'config.production.js'));
+        merged = merge(
+          merged,
+          nodeRequire(join(businessConfigPath, 'config.production.js')),
+        );
       }
     } catch {
       console.error('[exception] there is no env.config file');
@@ -86,6 +95,6 @@ export class ConfigService {
       optionsOverlay.homePage = homePage;
     }
 
-    return Object.assign({}, defaultConfig, envConfig, optionsOverlay);
+    return merge({}, merged, optionsOverlay);
   }
 }

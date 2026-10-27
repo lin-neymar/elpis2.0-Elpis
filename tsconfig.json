@@ -30,6 +30,7 @@
     "app/common/**/*.ts",
     "app/extend/**/*.ts",
     "app/modules/**/*.ts",
+    "app/ai/**/*.ts",
     "app/types/**/*.d.ts"
   ]
 }

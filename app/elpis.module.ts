@@ -1,6 +1,7 @@
 import { DynamicModule, INestApplication, Module } from '@nestjs/common';
 import { loadBusinessModules } from './common/load-business-modules';
 import { applyStaticAssets } from './common/middleware/static.middleware';
+import { AiModule } from './ai/ai.module';
 import { ExtendModule } from './extend/extend.module';
 import { FallbackModule } from './modules/fallback/fallback.module';
 import { ProjectModule } from './modules/project/project.module';
@@ -15,6 +16,7 @@ export class ElpisModule {
         ExtendModule,
         ProjectModule,
         ViewModule,
+        AiModule,
         ...loadBusinessModules(),
         FallbackModule,
       ],
