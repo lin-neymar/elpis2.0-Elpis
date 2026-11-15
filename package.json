@@ -1,6 +1,6 @@
 {
   "name": "@zwl_11/elpis",
-  "version": "1.0.7",
+  "version": "1.0.8",
   "description": "面向企业 AI 应用研发的 Agent 全栈开发框架：可插拔模型接入、Agent 编排、RAG、MCP、多轮记忆与质量保障（NestJS + LangChain/LangGraph）",
   "keywords": [
     "ai-agent",
