@@ -11,6 +11,6 @@ Cursor 实现 Vite 时，工作区必须是 elpis，不要在本仓库写构建�
 
 ## 本仓库只做
 
-- `npm link @fsiaonma/elpis`
+- `npm link @zwl_11/elpis`
 - 双终端：`npm run build:dev` → `:9002`，`npm run dev` → `:8080`
 - 验收：dashboard 行为不能少

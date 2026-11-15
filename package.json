@@ -1,10 +1,22 @@
 {
   "name": "@zwl_11/elpis",
   "version": "1.0.7",
-  "description": "",
+  "description": "面向企业 AI 应用研发的 Agent 全栈开发框架：可插拔模型接入、Agent 编排、RAG、MCP、多轮记忆与质量保障（NestJS + LangChain/LangGraph）",
+  "keywords": [
+    "ai-agent",
+    "agent-framework",
+    "langchain",
+    "langgraph",
+    "mcp",
+    "rag",
+    "nest",
+    "sse",
+    "llm"
+  ],
   "main": "index.js",
   "exports": {
     ".": "./index.js",
+    "./package.json": "./package.json",
     "./types/express": "./app/types/express.d.ts",
     "./dist/*": "./dist/*.js",
     "./dist/*/*": "./dist/*/*.js",
@@ -59,9 +71,7 @@
     "mysql": "^2.18.1",
     "mysql2": "^2.3.3",
     "node-schedule": "^2.1.1",
-    "nodemon": "^1.19.2",
     "nunjucks": "^3.2.4",
-    "path": "^0.12.7",
     "pinia": "^2.1.6",
     "reflect-metadata": "^0.2.2",
     "rxjs": "^7.8.1",
@@ -87,6 +97,7 @@
     "eslint-plugin-vue": "^9.17.0",
     "ghooks": "~1.0.3",
     "mocha": "^6.1.4",
+    "nodemon": "^1.19.2",
     "supertest": "^4.0.2",
     "typescript": "^6.0.0",
     "validate-commit-msg": "~2.14.0"
